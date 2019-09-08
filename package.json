@@ -23,6 +23,7 @@
   "homepage": "https://github.com/andriimakarenko/MacFinanceBot#readme",
   "dependencies": {},
   "devDependencies": {
+    "node-telegram-bot-api": "^0.30.0",
     "readline-sync": "^1.4.10",
     "request": "^2.88.0"
   }
