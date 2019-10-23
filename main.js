@@ -11,14 +11,15 @@
 /*===========================================================================*/
 
 const readlineSync = require('readline-sync');
+const request = require('request');
 let MonoUser = require('./mono.js');
 let TelegramBot = require('node-telegram-bot-api');
 
 const monoToken = readlineSync.question('Please provide your Monobank API token: ');
 const telegramToken = readlineSync.question('Please provide your Telegram API token: ');
-const maxOKDiff = readlineSync.question('How much UAH do you allow to spend?: ');
-const startingBalance = 1196000;
-let currentBalance = 1196000;
+const startingBalance = readlineSync.question('How many UAH is your credit limit?: ') * 100;
+const maxOKDiff = readlineSync.question('At most how many UAH do you plan to spend?: ');
+let lastBalance = startingBalance;
 
 const authorizedIDs = [369190174, 202478614];
 const updateReceiverChats = [];
@@ -33,20 +34,21 @@ telegramBot.on('message', msg => {
 	}
 });
 
-setInterval(() => {
-	var request = require('request');
+const checkUpdates = async () => {
 	let monoUser = new MonoUser(monoToken);
-	monoUser.getBalancePromise()
-	.then(balance => {
-		if (balance == currentBalance) return;
-		let difference = (startingBalance - balance)/100;
-		let message = 'You\'ve made a new purchase. ';
-		message += 'You have ';
-		message += maxOKDiff - difference;
-		message += ' UAH left to spend';
-		currentBalance = balance;
-		// console.log(message);
+	let newBalance = await monoUser.balance;
+	console.log(newBalance);
+	if (!isNaN(newBalance) && newBalance != lastBalance) {
+		pushUpdate(newBalance);
+		lastBalance = newBalance;
+	}
+}
 
-		updateReceiverChats.forEach(chatID => {telegramBot.sendMessage(chatID, message)});
-	});
-}, 70000);
+const pushUpdate = balance => {
+	let difference = (startingBalance - balance)/100;
+	let message = `You've made a new transaction. You have ${(maxOKDiff - difference).toFixed(2)} UAH left to spend`;
+	console.log(message);
+	updateReceiverChats.forEach(chatID => {telegramBot.sendMessage(chatID, message)});
+}
+
+setInterval(checkUpdates, 70000);

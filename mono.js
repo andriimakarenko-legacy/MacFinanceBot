@@ -41,4 +41,6 @@ module.exports = class MonoUser {
 		})
 	}
 
+	get balance() {return this.getBalancePromise()}
+
 };
