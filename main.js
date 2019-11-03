@@ -10,18 +10,27 @@
 /*                                                                           */
 /*===========================================================================*/
 
+process.env["NTBA_FIX_319"] = 1;
 const readlineSync = require('readline-sync');
-const request = require('request');
+const fs = require('fs');
 let MonoUser = require('./mono.js');
 let TelegramBot = require('node-telegram-bot-api');
 
-const monoToken = readlineSync.question('Please provide your Monobank API token: ');
-const telegramToken = readlineSync.question('Please provide your Telegram API token: ');
-const startingBalance = readlineSync.question('How many UAH is your credit limit?: ') * 100;
-const maxOKDiff = readlineSync.question('At most how many UAH do you plan to spend?: ');
-let lastBalance = startingBalance;
+// const monoToken = readlineSync.question('Please provide your Monobank API token: ');
+// const telegramToken = readlineSync.question('Please provide your Telegram API token: ');
+// const startingBalance = readlineSync.question('How many UAH is your credit limit?: ') * 100;
+// const maxOKDiff = readlineSync.question('At most how many UAH do you plan to spend?: ');
+// let lastBalance = startingBalance;
 
-const authorizedIDs = [369190174, 202478614];
+let configRaw = fs.readFileSync('config.json');
+let config = JSON.parse(configRaw);
+let monoToken = config.monoToken;
+let telegramToken = config.tgToken;
+const startingBalance = readlineSync.question('What was your starting balance?: ');
+const maxOKDiff = readlineSync.question('At most how many UAH do you plan to spend?: ');
+let lastBalance;
+
+const authorizedIDs = config.authorized;
 const updateReceiverChats = [];
 const telegramBot = new TelegramBot(telegramToken, { polling: true });
 
@@ -37,9 +46,10 @@ telegramBot.on('message', msg => {
 const checkUpdates = async () => {
 	let monoUser = new MonoUser(monoToken);
 	let newBalance = await monoUser.balance;
-	console.log(newBalance);
+	console.log(`New balance: ${newBalance}`);
 	if (!isNaN(newBalance) && newBalance != lastBalance) {
-		pushUpdate(newBalance);
+		if (typeof lastBalance !== 'undefined')
+			pushUpdate(newBalance);
 		lastBalance = newBalance;
 	}
 }

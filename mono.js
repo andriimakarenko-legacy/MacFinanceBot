@@ -34,7 +34,7 @@ module.exports = class MonoUser {
 					reject(err);
 				} else {
 					let responseObj = JSON.parse(body);
-					let balance = JSON.stringify(responseObj['accounts'][0]['balance']);
+					let balance = JSON.stringify(responseObj['accounts'][1]['balance']);
 					resolve(balance);
 				}
 			})
