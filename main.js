@@ -26,8 +26,23 @@ let configRaw = fs.readFileSync('config.json');
 let config = JSON.parse(configRaw);
 let monoToken = config.monoToken;
 let telegramToken = config.tgToken;
-const startingBalance = readlineSync.question('What was your starting balance?: ');
-const maxOKDiff = readlineSync.question('At most how many UAH do you plan to spend?: ');
+
+let locale;
+while (typeof locale === 'undefined') {
+	let selectedLang = readlineSync.question('Which language do you prefer? [en, ua]: ');
+	if (selectedLang === 'en') {
+		let localeRaw = fs.readFileSync('locales/en.json');
+		locale = JSON.parse(localeRaw);
+	}
+	if (selectedLang === 'ua') {
+		let localeRaw = fs.readFileSync('locales/ua.json');
+		locale = JSON.parse(localeRaw);
+	}
+}
+console.log(locale.updateMsg[0]);
+
+const startingBalance = readlineSync.question(locale.startingBalance);
+const maxOKDiff = readlineSync.question(locale.maxOKDiff);
 let lastBalance;
 
 const authorizedIDs = config.authorized;
@@ -38,7 +53,7 @@ telegramBot.on('message', msg => {
 	if (authorizedIDs.includes(msg.from.id)) {
 		let chatID = msg.chat.id;
 		updateReceiverChats.push(chatID);
-		telegramBot.sendMessage(chatID, 'You are now registered and will receive updates upon every transaction');
+		telegramBot.sendMessage(chatID, locale.tgBotRegMsg);
 		console.log(updateReceiverChats);
 	}
 });
@@ -56,7 +71,7 @@ const checkUpdates = async () => {
 
 const pushUpdate = balance => {
 	let difference = (startingBalance - balance)/100;
-	let message = `You've made a new transaction. You have ${(maxOKDiff - difference).toFixed(2)} UAH left to spend`;
+	let message = `${locale.updateMsg[0]} ${(maxOKDiff - difference).toFixed(2)} ${locale.updateMsg[1]}`;
 	console.log(message);
 	updateReceiverChats.forEach(chatID => {telegramBot.sendMessage(chatID, message)});
 }

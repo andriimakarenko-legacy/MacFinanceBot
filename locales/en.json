@@ -1,0 +1,10 @@
+{
+	"startingBalance" : "What was your starting balance?: ",
+	"maxOKDiff" : "At most how many UAH do you plan to spend?: ",
+	"tgBotRegMsg" : "You are now registered and will receive updates upon every transaction",
+	"updateMsg" :
+		[
+			"You've made a new transaction. You have",
+			"UAH left to spend"
+		]
+}
