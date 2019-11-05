@@ -39,7 +39,6 @@ while (typeof locale === 'undefined') {
 		locale = JSON.parse(localeRaw);
 	}
 }
-console.log(locale.updateMsg[0]);
 
 const startingBalance = readlineSync.question(locale.startingBalance);
 const maxOKDiff = readlineSync.question(locale.maxOKDiff);
