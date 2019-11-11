@@ -6,5 +6,10 @@
 		[
 			"You've made a new transaction. You have",
 			"UAH left to spend"
+		],
+	"welcomeMsg" :
+		[
+			"You've just subscribed to notifications. You have",
+			"UAH left to spend"
 		]
 }

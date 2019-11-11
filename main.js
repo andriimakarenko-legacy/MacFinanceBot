@@ -40,7 +40,7 @@ while (typeof locale === 'undefined') {
 	}
 }
 
-const startingBalance = readlineSync.question(locale.startingBalance);
+const startingBalance = readlineSync.question(locale.startingBalance) * 100;
 const maxOKDiff = readlineSync.question(locale.maxOKDiff);
 let lastBalance;
 
@@ -64,6 +64,8 @@ const checkUpdates = async () => {
 	if (!isNaN(newBalance) && newBalance != lastBalance) {
 		if (typeof lastBalance !== 'undefined')
 			pushUpdate(newBalance);
+		else
+			pushWelcome(newBalance);
 		lastBalance = newBalance;
 	}
 }
@@ -71,6 +73,13 @@ const checkUpdates = async () => {
 const pushUpdate = balance => {
 	let difference = (startingBalance - balance)/100;
 	let message = `${locale.updateMsg[0]} ${(maxOKDiff - difference).toFixed(2)} ${locale.updateMsg[1]}`;
+	console.log(message);
+	updateReceiverChats.forEach(chatID => {telegramBot.sendMessage(chatID, message)});
+}
+
+const pushWelcome = balance => {
+	let difference = (startingBalance - balance)/100;
+	let message = `${locale.welcomeMsg[0]} ${(maxOKDiff - difference).toFixed(2)} ${locale.welcomeMsg[1]}`;
 	console.log(message);
 	updateReceiverChats.forEach(chatID => {telegramBot.sendMessage(chatID, message)});
 }
